@@ -1,0 +1,196 @@
+0.<?php 
+phpinfo();// 顯示PHP設定及環境資訊
+?>
+
+1.<html>
+    <head><title>html+php</title></head>   <!-- 新增新增頁面標題 --> 
+    <body>
+        <?php echo "Hello world!"; ?>  <!--輸出 Hello world! 到網頁--> 
+        <h1>html</h1><!--顯示大標題--> 
+        <?php echo "Hello world!"; ?> <!--再次輸出 Hello world!--> 
+        <h1>html</h1><!--顯示標題--> 
+        <?php echo "Hello world!"; ?> <!--第三次輸出 Hello world!--> 
+    </body>
+</html>
+
+2.<html>
+    <head>
+        <meta charset="utf-8" />    <!-- 設定編碼為 UTF-8，避免中文字出現亂碼 -->
+        <title>登入範例</title> <!-- 設定標題-->
+    </head>
+    <body>
+        <form method=post action="2.login.php">
+            帳號：<input type=text name="id"><br />    <!-- 帳號輸入欄位 -->
+            密碼：<input type=password name="pwd"><p></p>    <!-- 密碼密碼輸入欄位 -->
+            <input type=submit value="登入">  <!-- 送出按鈕，按下後送出表單 -->
+            <input type=reset value="清除"><!-- 清除按鈕，按下後會清空表單內容 -->
+            
+        </form>
+    </body>
+</html>
+
+2-1.<?php 
+    echo $_POST["id"];//接收輸入的帳號帳號
+    echo "<br>"; //輸出<br>
+    echo $_POST["pwd"];//接收輸入的密碼
+?>
+
+3.<?php 
+    if (($_POST["id"] == "john") && ($_POST["pwd"]=="john1234"))//輸入帳號密碼
+        echo "登入成功";//顯示登入成功
+    else
+        echo "登入失敗";//顯示登入失敗
+?>
+
+4.<?php
+    # 建立資料庫連結
+    $conn = mysqli_connect("db4free.net", "immust", "immustimmust", "immust");
+    # 從資料庫查詢資料
+    $result=mysqli_query($conn, "select * from user");
+    # 從查詢出來的資料一筆一筆抓出來
+    $row=mysqli_fetch_array($result);// 從查詢結果中取出一筆資料
+    echo $row["id"] . " " . $row["pwd"]."<br>"; //顯示帳號及密碼
+    $row=mysqli_fetch_array($result);// 再取出下一筆資料
+    echo $row["id"] . " " . $row["pwd"];//再次顯示帳號密碼再次顯示帳號密碼
+?>
+
+5.<?php
+   # 建立資料庫連結
+   $conn=mysqli_connect("db4free.net", "immust", "immustimmust", "immust");
+   # 從資料庫查詢資料
+   $result=mysqli_query($conn, "select * from user");
+    #從查詢出來的資料一筆一筆抓出來
+   while ($row=mysqli_fetch_array($result)) //使用while迴圈從結果中一筆一筆抓取資料
+   {
+     echo $row["id"]." ".$row["pwd"]."<br>";// 輸出每一筆資料的「id」與「pwd」欄位
+   } 
+?>
+
+6.<?php
+   # 建立資料庫連結
+   $conn=mysqli_connect("db4free.net", "immust", "immustimmust", "immust");
+   # 從資料庫查詢資料
+   $result=mysqli_query($conn, "select * from user");
+   # 從查詢出來的資料一筆一筆抓出來
+   $login=FALSE;
+   while ($row=mysqli_fetch_array($result)) {
+     if (($_POST["id"]==$row["id"]) && ($_POST["pwd"]==$row["pwd"])) //輸入帳密是否正確
+     {
+       $login=TRUE;//登入成功顯示為Ture
+     }
+   } 
+   if ($login==TRUE)
+     echo "登入成功";//顯示登入成功
+  else
+     echo "帳號/密碼 錯誤";//顯示帳號密碼錯誤
+?>
+
+7.<?php
+    error_reporting(0);
+    $conn=mysqli_connect("db4free.net", "immust", "immustimmust", "immust");   # 建立資料庫連結
+    $result=mysqli_query($conn, "select * from bulletin"); // 建立與 MySQL 資料庫
+    echo "<table border=2><tr><td>佈告編號</td><td>佈告類別</td><td>標題</td><td>佈告內容</td><td>發佈時間</td></tr>";
+    while ($row=mysqli_fetch_array($result))//使用while迴圈取出資料並輸出成HTML格式取出資料並輸出成HTML格式
+    {
+        echo "<tr><td>";
+        echo $row["bid"];       // 佈告編號 (
+        echo "</td><td>";
+        echo $row["type"];      // 佈告類別 
+        echo "</td><td>"; 
+        echo $row["title"];     // 標題 
+        echo "</td><td>";
+        echo $row["content"];   // 內容 
+        echo "</td><td>";
+        echo $row["time"];      // 發佈時間 
+    }
+    echo "</table>"             //結束結束
+?>
+
+8.<?php
+    session_start();
+    if (!isset($_SESSION["counter"])) // 檢查是否已經有名為 "counter" 的 session 變數
+        $_SESSION["counter"]=1;//如果沒有,表示是第一次進入,將其輸出為1
+    else
+        $_SESSION["counter"]++; // 如果已存在，代表不是第一次進入
+
+    echo "counter=".$_SESSION["counter"];//顯示目前的值
+    echo "<br><a href=9.reset_counter.php>重置counter</a>";
+?>
+
+9.<?php
+    session_start();
+    unset($_SESSION["counter"]);// 移除 counter 的 Session 變數
+    echo "counter重置成功....";//顯示重置成功
+    echo "<meta http-equiv=REFRESH content='2; url=8.counter.php'>";  // 使用 meta 在2秒後自動跳回到 8.counter.php
+?>
+
+10.<?php
+   # 建立資料庫連結
+   $conn=mysqli_connect("db4free.net", "immust", "immustimmust", "immust");
+   # 從資料庫查詢資料
+   $result=mysqli_query($conn, "select * from user");
+   # 從查詢出來的資料一筆一筆抓出來
+   $login=FALSE;   // 預設登入狀態為 FALSE
+   while ($row=mysqli_fetch_array($result)) //使用while迴圈讀取資料
+   {
+     if (($_POST["id"]==$row["id"]) && ($_POST["pwd"]==$row["pwd"])) //檢查帳號密碼是否正確
+     {
+       $login=TRUE;//登入成功
+     }
+   } 
+   if ($login==TRUE) //如果登入成功
+   {
+    session_start();
+    $_SESSION["id"]=$_POST["id"];// 儲存使用者帳號到 session
+    echo "登入成功"; // 顯示登入成功
+    echo "<meta http-equiv=REFRESH content='3, url=11.bulletin.php'>";
+   }    // 3 秒後導向到 bulletin頁面
+
+  else{
+    echo "帳號/密碼 錯誤";// 若帳號或密碼錯誤，顯示錯誤訊息
+    echo "<meta http-equiv=REFRESH content='3, url=2.login.html'>";
+  }   // 3 秒後導回登入頁面
+?>
+
+11.<?php
+    error_reporting(0);
+    session_start();
+    if (!$_SESSION["id"]) {
+        echo "請先登入"; // 提示尚未登入
+        echo "<meta http-equiv=REFRESH content='3, url=2.login.html'>"; // 3秒後自動導回登入頁面
+    }
+    else{
+        echo "歡迎, ".$_SESSION["id"]."[<a href=12.logout.php>登出</a>] [<a href=18.user.php>管理使用者</a>] [<a href=22.bulletin_add_form.php>新增佈告</a>]<br>";
+         // 若已登入，顯示歡迎訊息與功能選單
+        $conn=mysqli_connect("db4free.net", "immust", "immustimmust", "immust");     // 連接資料庫
+        $result=mysqli_query($conn, "select * from bulletin");// 查詢 bulletin 資料表中的所有公告
+        echo "<table border=2><tr><td></td><td>佈告編號</td><td>佈告類別</td><td>標題</td><td>佈告內容</td><td>發佈時間</td></tr>";
+         // 建立 HTML 表格，並顯示表頭欄位
+        while ($row=mysqli_fetch_array($result)){
+            echo "<tr><td><a href=26.bulletin_edit_form.php?bid={$row["bid"]}>修改</a> 
+            <a href=28.bulletin_delete.php?bid={$row["bid"]}>刪除</a></td><td>";
+        // 使用 while 迴圈逐筆抓出資料，顯示在表格中
+            echo $row["bid"];     // 佈告編號
+            echo "</td><td>";
+            echo $row["type"];    // 類別
+            echo "</td><td>"; 
+            echo $row["title"];   // 標題
+            echo "</td><td>";
+            echo $row["content"]; // 內容
+            echo "</td><td>";
+            echo $row["time"];    // 發佈時間
+            echo "</td></tr>";
+        }
+        echo "</table>";         //結束
+    
+    }
+
+?>
+
+12.<?php
+    session_start();
+    unset($_SESSION["id"]);//清除登入狀態
+    echo "登出成功....";//顯示登出成功
+    echo "<meta http-equiv=REFRESH content='3; url=2.login.html'>";
+    //在3秒後跳回登入頁面
+?>
