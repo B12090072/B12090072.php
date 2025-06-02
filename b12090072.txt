@@ -1,0 +1,716 @@
+14.
+<html>
+    <head>
+        <title>新增使用者</title>
+    </head>
+    <body>
+<?php        
+    // 關閉錯誤報告，避免顯示警告訊息
+    error_reporting(0);
+    // 啟用 session，才能使用 $_SESSION 儲存使用者資訊
+    session_start();
+    // 檢查使用者是否已登入，未登入則顯示提示訊息並重新導向到登入頁面
+    if (!$_SESSION["id"]) {
+        echo "請登入帳號"; // 顯示提示訊息
+        echo "<meta http-equiv=REFRESH content='3, url=2.login.html'>"; // 3 秒後跳轉到登入頁面
+    }
+    else {
+        // 若已登入，顯示新增使用者表單
+        echo "
+            <form action=15.user_add.php method=post>
+                帳號：<input type=text name=id><br> <!-- 使用者輸入帳號 -->
+                密碼：<input type=text name=pwd><p></p> <!-- 使用者輸入密碼 -->
+                <input type=submit value=新增> <!-- 送出表單 -->
+                <input type=reset value=清除> <!-- 重設表單內容 -->
+            </form>
+        ";
+    }
+?>
+    </body>
+</html>
+15.
+<?php
+// 關閉 PHP 的錯誤報告（
+error_reporting(0);
+
+// 啟動 session，以便存取 $_SESSION 變數
+session_start();
+
+// 檢查使用者是否已登入
+if (!$_SESSION["id"]) {
+    // 若未登入，顯示提示訊息並在 3 秒後跳轉至登入頁面
+    echo "請登入帳號";
+    echo "<meta http-equiv=REFRESH content='3, url=2.login.html'>";
+}
+else {
+    // 若已登入，開始進行新增使用者的動作
+
+    // 使用 mysqli_connect() 建立與資料庫的連線
+    // 參數依序為：主機、使用者名稱、密碼、資料庫名稱
+    $conn = mysqli_connect("db4free.net", "immust", "immustimmust", "immust");
+
+    // 建立 SQL 指令，將使用者透過 POST 方法送來的 id 和 pwd 插入 user 資料表
+    // 注意：此處直接使用 POST 資料會有 SQL Injection 的風險，建議使用預處理語句來改善安全性
+    $sql = "insert into user(id, pwd) values('{$_POST['id']}', '{$_POST['pwd']}')";
+
+    // 若資料庫執行失敗，顯示錯誤訊息
+    if (!mysqli_query($conn, $sql)) {
+        echo "新增命令錯誤";
+    }
+    else {
+        // 若執行成功，顯示成功訊息並在 3 秒後跳轉回使用者列表頁面
+        echo "新增使用者成功，三秒鐘後回到網頁";
+        echo "<meta http-equiv=REFRESH content='3, url=18.user.php'>";
+    }
+}
+?>
+17.<?php
+    // 關閉錯誤顯示
+    error_reporting(0);
+
+    // 啟動 session 機制，讓程式可以存取 $_SESSION 資料
+    session_start();
+
+    // 判斷使用者是否已登入（判斷 session 中是否有 id）
+    if (!$_SESSION["id"]) {
+        // 若尚未登入，提示使用者並在 3 秒後跳轉至登入頁面
+        echo "請登入帳號";
+        echo "<meta http-equiv=REFRESH content='3, url=2.login.html'>";
+    }
+    else {   
+        // 已登入，開始執行刪除操作
+
+        // 建立與資料庫的連線（主機, 使用者, 密碼, 資料庫名稱）
+        $conn = mysqli_connect("db4free.net", "immust", "immustimmust", "immust");
+
+        // 建立 SQL 刪除語句，從 user 資料表刪除 id 為 GET 傳來的值
+        // 注意：此寫法有 SQL Injection 風險，實務上建議使用預處理語句
+        $sql = "delete from user where id='{$_GET["id"]}'";
+
+        // 若執行 SQL 指令失敗，顯示錯誤訊息
+        if (!mysqli_query($conn, $sql)) {
+            echo "使用者刪除錯誤";
+        }
+        else {
+            // 執行成功，顯示成功訊息
+            echo "使用者刪除成功";
+        }
+
+        // 三秒後跳轉回使用者列表頁面
+        echo "<meta http-equiv=REFRESH content='3, url=18.user.php'>";
+    }
+18.<html>
+    <head>
+        <title>使用者管理</title>
+    </head>
+    <body>
+    <?php
+        // 關閉錯誤顯示
+        error_reporting(0);
+
+        // 啟動 session，以便檢查使用者是否登入
+        session_start();
+
+        // 檢查是否有登入
+        if (!$_SESSION["id"]) {
+            // 若未登入，顯示提示訊息並在 3 秒後跳轉至登入頁面
+            echo "請登入帳號";
+            echo "<meta http-equiv=REFRESH content='3, url=2.login.html'>";
+        }
+        else{   
+            // 若已登入，顯示使用者管理頁面內容
+
+            // 顯示頁面標題與功能鏈接
+            echo "<h1>使用者管理</h1>
+                [<a href=14.user_add_form.php>新增使用者</a>] 
+                [<a href=11.bulletin.php>回佈告欄列表</a>]<br>";
+
+            // 建立與資料庫的連線
+            $conn = mysqli_connect("db4free.net", "immust", "immustimmust", "immust");
+
+            // 執行 SQL 查詢，選取所有 user 資料
+            $result = mysqli_query($conn, "SELECT * FROM user");
+
+            // 開始顯示使用者資料表格
+            echo "<table border=1>
+                    <tr><td></td><td>帳號</td><td>密碼</td></tr>";
+
+            // 逐筆處理查詢結果並顯示在表格中
+            while ($row = mysqli_fetch_array($result)) {
+                // 顯示每一行使用者的帳號與密碼，以及「修改」與「刪除」連結
+                echo "<tr>
+                        <td>
+                            <a href=19.user_edit_form.php?id={$row['id']}>修改</a> || 
+                            <a href=17.user_delete.php?id={$row['id']}>刪除</a>
+                        </td>
+                        <td>{$row['id']}</td>
+                        <td>{$row['pwd']}</td>
+                      </tr>";
+            }
+            // 結束表格標籤
+            echo "</table>";
+        }
+    ?> 
+    </body>
+</html>
+20.
+<html>
+    <head>
+        <title>修改使用者</title>
+    </head>
+    <body>
+    <?php
+    // 關閉錯誤顯示（開發環境可開啟，正式環境通常關閉）
+    error_reporting(0);
+
+    // 啟動 session，以便能檢查使用者是否已登入
+    session_start();
+
+    // 檢查是否有登入
+    if (!$_SESSION["id"]) {
+        // 若未登入，顯示提示訊息並在 3 秒後跳轉到登入頁面
+        echo "請登入帳號";
+        echo "<meta http-equiv=REFRESH content='3, url=2.login.html'>";
+    }
+    else{   
+        // 已登入，開始執行修改操作
+
+        // 建立與資料庫的連線（主機、使用者名稱、密碼、資料庫名稱）
+        $conn = mysqli_connect("db4free.net", "immust", "immustimmust", "immust");
+
+        // 使用 GET 方法獲取 id 並根據 id 查詢對應的使用者資料
+        // 查詢語句：從 user 資料表中查找 id 為指定值的使用者
+        $result = mysqli_query($conn, "SELECT * FROM user WHERE id='{$_GET['id']}'");
+
+        // 取得查詢結果的第一行資料（應該只有一行，因為 id 是唯一的）
+        $row = mysqli_fetch_array($result);
+
+        // 顯示修改表單，表單預填入使用者資料
+        echo "
+        <form method=post action=20.user_edit.php>
+            <!-- 隱藏欄位，存放要修改的使用者 id -->
+            <input type=hidden name=id value={$row['id']}>
+            
+            <!-- 顯示帳號，帳號是不可修改的 -->
+            帳號：{$row['id']}<br> 
+
+            <!-- 密碼欄位，顯示當前密碼，使用者可以修改 -->
+            密碼：<input type=text name=pwd value={$row['pwd']}><p></p>
+
+            <!-- 提交按鈕 -->
+            <input type=submit value=修改>
+        </form>
+        ";
+    }
+    ?>
+    </body>
+</html>
+22.
+<?php
+    // 關閉錯誤顯示
+    error_reporting(0);
+
+    // 啟動 session，以便可以使用 $_SESSION 檢查是否已經登入
+    session_start();
+
+    // 檢查是否有登入，判斷 $_SESSION["id"] 是否存在
+    if (!$_SESSION["id"]) {
+        // 若使用者未登入，顯示提示訊息並且在 3 秒後跳轉至登入頁面
+        echo "please login first"; // 顯示提示訊息
+        echo "<meta http-equiv=REFRESH content='3, url=2.login.html'>"; // 三秒後跳轉至登入頁
+    }
+    else {
+        // 若已登入，顯示新增佈告的表單
+
+        echo "
+        <html>
+            <head><title>新增佈告</title></head>
+            <body>
+                <!-- 表單開始，送出資料至 23.bulletin_add.php -->
+                <form method=post action=23.bulletin_add.php>
+                    
+                    <!-- 佈告標題輸入欄位 -->
+                    標    題：<input type=text name=title><br>
+                    
+                    <!-- 佈告內容輸入欄位，使用 textarea 來讓使用者輸入多行文字 -->
+                    內    容：<br><textarea name=content rows=20 cols=20></textarea><br>
+                    
+                    <!-- 佈告類型選項，使用 radio 按鈕讓使用者選擇公告類型 -->
+                    佈告類型：<input type=radio name=type value=1>系上公告 
+                            <input type=radio name=type value=2>獲獎資訊
+                            <input type=radio name=type value=3>徵才資訊<br>
+                    
+                    <!-- 發布時間選擇欄位，使用 date 類型的 input 來讓使用者選擇日期 -->
+                    發布時間：<input type=date name=time><p></p>
+                    
+                    <!-- 提交表單按鈕 -->
+                    <input type=submit value=新增佈告> 
+                    <!-- 重設表單按鈕 -->
+                    <input type=reset value=清除>
+                </form>
+            </body>
+        </html>
+        ";
+    }
+?>
+23.
+<?php
+    // 關閉錯誤顯示
+    error_reporting(0);
+
+    // 啟動 session，以便可以檢查使用者是否已經登入
+    session_start();
+
+    // 檢查是否有登入，判斷 $_SESSION["id"] 是否存在
+    if (!$_SESSION["id"]) {
+        // 若使用者未登入，顯示提示訊息並且在 3 秒後跳轉至登入頁面
+        echo "please login first"; // 顯示提示訊息
+        echo "<meta http-equiv=REFRESH content='3, url=2.login.html'>"; // 三秒後跳轉至登入頁
+    }
+    else {
+        // 已登入，處理新增佈告的邏輯
+
+        // 建立與資料庫的連線
+        $conn = mysqli_connect("db4free.net", "immust", "immustimmust", "immust");
+
+        // 準備插入資料的 SQL 語句，將表單資料插入到 bulletin 資料表
+        $sql = "INSERT INTO bulletin(title, content, type, time) 
+                VALUES('{$_POST['title']}', '{$_POST['content']}', {$_POST['type']}, '{$_POST['time']}')";
+
+        // 執行 SQL 查詢，若插入資料失敗則顯示錯誤訊息
+        if (!mysqli_query($conn, $sql)) {
+            // 若執行失敗，顯示錯誤訊息
+            echo "新增命令錯誤";
+        }
+        else {
+            // 若插入成功，顯示成功訊息，並在 3 秒後導向回佈告列表頁面
+            echo "新增佈告成功，三秒鐘後回到網頁";
+            echo "<meta http-equiv=REFRESH content='3, url=11.bulletin.php'>"; // 3秒後跳轉到佈告頁
+        }
+    }
+?>
+26
+<?php
+    // 關閉錯誤顯示（正式環境應關閉錯誤報告，開發時建議開啟 E_ALL）
+    error_reporting(0);
+
+    // 啟動 session，以便可以檢查使用者是否已經登入
+    session_start();
+
+    // 檢查是否有登入，判斷 $_SESSION["id"] 是否存在
+    if (!$_SESSION["id"]) {
+        // 若使用者未登入，顯示提示訊息並且在 3 秒後跳轉至登入頁面
+        echo "please login first"; // 顯示提示訊息
+        echo "<meta http-equiv=REFRESH content='3, url=2.login.html'>"; // 3秒後跳轉至登入頁
+    }
+    else {
+        // 已登入，處理編輯佈告的邏輯
+        // 建立與資料庫的連線
+        $conn = mysqli_connect("db4free.net", "immust", "immustimmust", "immust");
+        // 從資料庫中選取指定的佈告資料
+        $result = mysqli_query($conn, "select * from bulletin where bid={$_GET['bid']}");
+
+        // 提取該佈告的資料，並將其存入 $row 陣列
+        $row = mysqli_fetch_array($result);
+
+        // 設定三個變數，對應佈告的類型選項
+        $checked1 = "";
+        $checked2 = "";
+        $checked3 = "";
+        // 根據資料庫中的佈告類型來勾選對應的 radio 按鈕
+        if ($row['type'] == 1)
+            $checked1 = "checked"; // 系上公告
+        if ($row['type'] == 2)
+            $checked2 = "checked"; // 獲獎資訊
+        if ($row['type'] == 3)
+            $checked3 = "checked"; // 徵才資訊
+
+        // 顯示編輯佈告的表單，並填入資料庫中的對應欄位
+        echo "
+        <html>
+            <head><title>新增佈告</title></head>
+            <body>
+                <form method=post action=27.bulletin_edit.php>
+                    <!-- 顯示佈告編號，並隱藏它以便提交 -->
+                    佈告編號：{$row['bid']}<input type=hidden name=bid value={$row['bid']}><br>
+
+                    <!-- 顯示並讓使用者編輯標題 -->
+                    標    題：<input type=text name=title value={$row['title']}><br>
+
+                    <!-- 顯示並讓使用者編輯內容 -->
+                    內    容：<br><textarea name=content rows=20 cols=20>{$row['content']}</textarea><br>
+
+                    <!-- 顯示並讓使用者選擇佈告類型，根據資料庫資料選擇對應的 radio 按鈕 -->
+                    佈告類型：<input type=radio name=type value=1 {$checked1}>系上公告 
+                            <input type=radio name=type value=2 {$checked2}>獲獎資訊
+                            <input type=radio name=type value=3 {$checked3}>徵才資訊<br>
+
+                    <!-- 顯示並讓使用者編輯發布時間 -->
+                    發布時間：<input type=date name=time value={$row['time']}><p></p>
+
+                    <!-- 提交表單按鈕 -->
+                    <input type=submit value=修改佈告> 
+                    <!-- 重設表單按鈕 -->
+                    <input type=reset value=清除>
+                </form>
+            </body>
+        </html>
+        ";
+    }
+?>
+27.
+<?php
+    // 關閉錯誤顯示
+    error_reporting(0);
+
+    // 啟動 session，以便檢查使用者是否已登入
+    session_start();
+
+    // 檢查是否有登入，通過檢查 $_SESSION["id"]
+    if (!$_SESSION["id"]) {
+        // 如果未登入，顯示提示並在 3 秒鐘後跳轉至登入頁面
+        echo "請登入帳號"; // 顯示提示訊息
+        echo "<meta http-equiv=REFRESH content='3, url=2.login.html'>"; // 3秒後跳轉至登入頁
+    }
+    else {
+        // 使用者已登入，處理更新佈告的邏輯
+        
+        // 建立資料庫連線
+        $conn = mysqli_connect("db4free.net", "immust", "immustimmust", "immust");
+
+        // 執行 SQL 更新語句，將表單提交的資料更新到 bulletin 表中
+        // 使用 POST 來取得表單傳來的資料，並更新指定的 bid 佈告
+        $sql = "UPDATE bulletin SET title='{$_POST['title']}', content='{$_POST['content']}', time='{$_POST['time']}', type={$_POST['type']} WHERE bid='{$_POST['bid']}'";
+        
+        // 如果 SQL 執行失敗，顯示錯誤訊息並跳轉到佈告列表頁
+        if (!mysqli_query($conn, $sql)) {
+            echo "修改錯誤"; // 顯示錯誤訊息
+            echo "<meta http-equiv=REFRESH content='3, url=11.bulletin.php'>"; // 3秒後跳轉至佈告列表頁
+        }
+        else {
+            // 如果 SQL 執行成功，顯示成功訊息並跳轉回佈告列表頁
+            echo "修改成功，三秒鐘後回到佈告欄列表";
+            echo "<meta http-equiv=REFRESH content='3, url=11.bulletin.php'>"; // 3秒後跳轉至佈告列表頁
+        }
+    }
+?>
+28.
+<?php
+    // 關閉錯誤顯示
+    error_reporting(0);
+
+    // 啟動 session，以便檢查使用者是否已登入
+    session_start();
+
+    // 檢查是否有登入，通過檢查 $_SESSION["id"]
+    if (!$_SESSION["id"]) {
+        // 如果未登入，顯示提示訊息並在 3 秒鐘後跳轉至登入頁面
+        echo "請登入帳號"; // 顯示提示訊息
+        echo "<meta http-equiv=REFRESH content='3, url=2.login.html'>"; // 3秒後跳轉至登入頁
+    }
+    else {
+        // 使用者已登入，處理刪除佈告的邏輯
+
+        // 建立資料庫連線
+        $conn = mysqli_connect("db4free.net", "immust", "immustimmust", "immust");
+
+        // 構建 SQL 刪除語句，根據 GET 參數中的 bid 來刪除對應的佈告
+        $sql = "DELETE FROM bulletin WHERE bid='{$_GET["bid"]}'";
+
+        // 如果 SQL 執行失敗，顯示錯誤訊息
+        if (!mysqli_query($conn, $sql)) {
+            echo "佈告刪除錯誤"; // 顯示錯誤訊息
+        } else {
+            // 如果 SQL 執行成功，顯示成功訊息
+            echo "佈告刪除成功"; // 顯示成功訊息
+        }
+
+        // 在 3 秒後跳轉回佈告列表頁面
+        echo "<meta http-equiv=REFRESH content='3, url=11.bulletin.php'>";
+    }
+?>
+31.
+<html>
+    <head><title>明新科技大學資訊管理系</title>
+    <meta charset="utf-8">
+    <!-- 引入 FlexSlider CSS 文件，用於圖片幻燈片效果 -->
+    <link href="https://cdn.bootcss.com/flexslider/2.6.3/flexslider.min.css" rel="stylesheet">
+    <!-- 引入 jQuery 和 FlexSlider 的 JS 檔案 -->
+    <script src="https://cdn.bootcss.com/jquery/2.2.2/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/flexslider/2.6.3/jquery.flexslider-min.js"></script>
+    
+    <script>
+        // 頁面載入後執行 FlexSlider 初始化
+        $(window).load(function() {
+            $('.flexslider').flexslider({
+                animation: "slide", // 設定幻燈片動畫效果為滑動
+                rtl: true // 設定為從右到左顯示（可根據需要調整）
+            });
+        });
+    </script>
+
+    <style>
+        /* 全局樣式設定 */
+        * {
+            margin: 0;
+            color: gray;
+            text-align: center;
+        }
+
+        /* top 部分樣式 */
+        .top {
+             background-color: white;
+        }
+        .top .container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+        }
+        .top .logo {
+            font-size: 35px;
+            font-weight: bold;
+        }
+        .top .logo img {
+            width: 100px;
+            vertical-align: middle;
+        }
+        .top .top-nav {
+            font-size: 25px;
+            font-weight: bold;
+        }
+        .top .top-nav a {
+            text-decoration: none;
+        }
+
+        /* 主要導航欄 */
+        .nav {
+            background-color: #333;
+            display: flex;
+            justify-content: center;
+        }
+        .nav ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #333;
+        }
+        .nav li {
+            float: left;
+        }
+        .nav li a {
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+        .nav li a:hover {
+            background-color: #111;
+        }
+
+        /* 下拉式選單樣式 */
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        li.dropdown:hover {
+            background-color: #333;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #333;
+            min-width: 160px;
+            z-index: 1;
+        }
+        .dropdown-content a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            text-align: left;
+        }
+
+        /* 圖片輪播 (Slider) 部分 */
+        .slider {
+            background-color: black;
+        }
+
+        /* Banner 部分 */
+        .banner {
+            background-image: linear-gradient(#ABDCFF, #0396FF);
+            padding: 30px;
+        }
+        .banner h1 {
+            padding: 20px;
+        }
+
+        /* 師資介紹區域 */
+        .faculty {
+            display: block;
+            justify-content: center;
+            background-color: white;
+            padding: 40px;
+        }
+        .faculty h2 {
+            font-size: 25px;
+            color: rgb(50,51,52);
+            padding-bottom: 40px;
+        }
+        .faculty .container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+        .faculty .teacher {
+            display: block;
+            text-decoration: none;
+        }
+        .faculty .teacher img {
+            height: 200px;
+            width: 200px;
+        }
+        .faculty .teacher h3 {
+            color: White;
+            background-color: rgba(39, 40, 34, 0.5);
+            text-align: center;
+        }
+
+        /* 聯絡資訊區域 */
+        .contact {
+            display: block;
+            justify-content: center;
+            margin-top: 30px;
+            margin-bottom: 30px;
+        }
+        .contact h2 {
+            color: rgb(54, 82, 110);
+            font-size: 25px;
+        }
+        .contact .infos {
+            display: flex;
+            margin-top: 30px;
+            justify-content: center;
+        }
+        .contact .infos .left {
+            display: block;
+            text-align: left;
+            margin-right: 30px;
+        }
+        .contact .infos .left b {
+            display: block;
+            text-align: left;
+            margin-top: 10px;
+            text-decoration: bold;
+            color: Gray;
+            font-size: 18px;
+            line-height: 18px;
+        }
+        .contact .infos .left span {
+            display: block;
+            text-align: left;
+            margin-top: 10px;
+            color: rgba(39, 40, 34, 0.5);
+            font-size: 16px;
+            padding-left: 27px;
+        }
+        .contact .infos .right {
+            height: 200px;
+        }
+        .contact .infos .right iframe {
+            width: 100%;
+            height: 100%;
+            border: 1px solid rgba(39, 40, 34, 0.50);
+        }
+
+        /* 底部 */
+        .footer {
+            display: flex;
+            justify-content: center;
+            background-color: rgb(25, 26, 30);
+            padding: 30px 0;
+        }
+
+        /* 登入畫面樣式 */
+        .modal {
+            display: none; /* 預設隱藏 */
+            position: fixed; /* 固定位置 */
+            z-index: 1; /* 顯示於最上層 */
+            right: 50;
+            top: 50;
+            width: 20%; /* 設定登入畫面的寬度 */
+            height: 20%; /* 設定登入畫面的高度 */
+            overflow: auto; /* 超出部分可滾動 */
+            background-color: rgba(255,255,255,0.9); /* 背景顏色及透明度 */
+            padding-top: 50px;
+        }
+
+        /* 佈告欄區域 */
+        .bulletin {
+            display: block;
+            justify-content: center;
+            background-color: rgb(255, 204, 153);
+            padding: 30px 0;
+        }
+        .bulletin h1 {
+            padding: 10px;
+        }
+        .bulletin table {
+            border-collapse: collapse;
+            font-family: 微軟正黑體;
+            font-size: 16px;
+            border: 1px solid #000;
+        }
+        .bulletin table th {
+            background-color: #abdcff;
+            color: #ffffff;
+        }
+        .bulletin table td {
+            background-color: #ffffff;
+            color: #0396ff;
+        }
+    </style>
+    </head>
+    <body>
+
+        <!-- 頁面頂部區域 -->
+        <div class="top">
+            <div class="container">
+                <!-- logo 部分 -->
+                <div class="logo">
+                  <img src="https://github.com/shhuangmust/html/raw/111-1/IMMUST_LOGO.JPG">
+                  明新科技大學資訊管理系
+                </div>
+                <!-- 頂部導航 -->
+                <div class="top-nav">
+                  <a href=>明新科大</a>
+                  <a href=>明新管理學院</a>
+                  <!-- 登入按鈕，點擊後顯示登入表單 -->
+                  <label onclick="document.getElementById('login').style.display='block'">登入</label>
+                  <div id="login" class="modal">
+                    <span onclick="document.getElementById('login').style.display='none'">&times; 管理系統登入</span>
+                    <!-- 登入表單 -->
+                    <form method="post" action="10.login.php">
+                        帳號：<input type="text" name="id"><br />
+                        密碼：<input type="password" name="pwd"><p></p>
+                        <input type="submit" value="登入"> <input type="reset" value="清除">
+                    </form>
+                  </div>  
+                </div>
+              </div>
+        </div>
+
+        <!-- 導航欄 -->
+        <div class="nav">   
+            <ul>
+                <li><a href="#home">首頁</a></li>
+                <li><a href="#introduction">系所簡介</a></li>
+                <li class="dropdown"><a href="#faculty">成員簡介</a>
+                    <div class="dropdown-content">
+                        <a href="#faculty">黃老師</a>
+                        <a href="#faculty">李老師</a>
+                        <a href="#faculty">應老師</a>
+                    </div>                       
+                </li>
+                <li><a href="#about">
